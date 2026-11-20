@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MAK Auto Parts — Peças automotivas da África do Sul para Angola</title>
+<meta name="description" content="Encomendamos a sua peça automotiva na África do Sul e exportamos para Angola. Peça um orçamento pelo WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{--bg:#050505;--panel:#0f0e0c;--line:#2a2418;--gold:#d4af37;--gold2:#8a6d1c;--tx:#f4f1ea;--mut:#a8a39a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth;scroll-padding-top:84px;height:100%}
+body{background:var(--bg);color:var(--tx);font-family:Manrope,system-ui,sans-serif;margin:0}
+h1,h2,h3,.disp{font-family:'Barlow Condensed','Arial Narrow',sans-serif;letter-spacing:.01em;line-height:1}
+.gold{background:linear-gradient(135deg,#f3dc8a,#d4af37 45%,#8a6d1c);color:#120e03}
+.goldtx{background:linear-gradient(135deg,#f3dc8a,#d4af37 50%,#a07f22);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{font-weight:700;padding:.85rem 1.4rem;border-radius:2px;transition:transform .2s,box-shadow .2s;cursor:pointer;display:inline-block;text-align:center}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,175,55,.25)}
+.ghost{border:1px solid var(--gold);color:var(--gold)}
+.card{background:var(--panel);border:1px solid var(--line);transition:border-color .25s,transform .25s}
+.card:hover{border-color:var(--gold);transform:translateY(-4px)}
+.rev{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}.rev.in{opacity:1;transform:none}
+.hero{background:radial-gradient(ellipse at 70% 20%,rgba(212,175,55,.22),transparent 55%),linear-gradient(180deg,#050505 0%,rgba(5,5,5,.2) 40%,#050505 100%),#070707}
+.ship{fill:#14110a;stroke:#3a2f14}
+.inp{width:100%;background:#0a0908;border:1px solid var(--line);padding:.7rem .8rem;color:var(--tx);border-radius:2px}
+.inp:focus{outline:2px solid var(--gold);outline-offset:1px}
+.err{color:#ff8a7a;font-size:.8rem;margin-top:.2rem}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-40px)}}
+.drift{animation:drift 6s linear infinite alternate}
+@media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none;transition:none}.drift{animation:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useMemo,useRef}=React;
+const html=htm.bind(React.createElement);
+const WA={AO:'244923422858',ZA:'27656439140'};
+const wa=(n,t)=>`https://wa.me/${n}?text=${encodeURIComponent(t)}`;
+const PARTS=[
+ {n:'Barra de direção',c:'Direção',d:'Barras e terminais de direção para vários modelos. Informe o veículo e localizamos a referência correta.',i:'M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4'},
+ {n:'Junta de cúpula',c:'Motor',d:'Juntas de cabeçote e de vedação do motor, conforme marca, modelo e ano.',i:'M4 8h16v8H4zM8 8v8M12 8v8M16 8v8'},
+ {n:'Jogo de rótulas de tração',c:'Transmissão',d:'Rótulas e juntas homocinéticas para o eixo de tração do seu veículo.',i:'M12 4a4 4 0 100 8 4 4 0 000-8zM12 12v8M8 20h8'},
+ {n:'Peças de suspensão',c:'Suspensão',d:'Amortecedores, molas, buchas, bandejas e rótulas de suspensão.',i:'M8 3h8M8 7h8M8 11h8M8 15h8M12 15v6'},
+ {n:'Componentes de motor',c:'Motor',d:'Bombas, correias, filtros, sensores e outros componentes de motor.',i:'M3 10h3l2-3h6l2 3h5v6h-5l-2 3H8l-2-3H3z'},
+ {n:'Peças de transmissão',c:'Transmissão',d:'Kits de embreagem, volantes, rolamentos e componentes de caixa de velocidades.',i:'M12 3v18M3 12h18M6 6l12 12M18 6L6 18'},
+ {n:'Sistema de freios',c:'Freios',d:'Discos, pastilhas, pinças, cilindros e mangueiras de freio.',i:'M12 3a9 9 0 100 18 9 9 0 000-18zM12 8a4 4 0 100 8 4 4 0 000-8z'},
+ {n:'Outras peças automotivas',c:'Outras',d:'Não encontrou o que procura? Descreva a peça e a nossa equipe procura na África do Sul.',i:'M12 5v14M5 12h14'}];
+const CATS=['Todas',...new Set(PARTS.map(p=>p.c))];
+const STEPS=[['Você solicita','Informe qual peça está procurando.','M4 5h16v12H8l-4 4z'],['Nós localizamos','Nossa equipe procura a peça na África do Sul.','M11 4a7 7 0 100 14 7 7 0 000-14zM16 16l5 5'],['Confirmamos o orçamento','Você recebe as informações e condições da encomenda.','M5 12l5 5 9-10'],['Exportamos para Angola','Após a confirmação, organizamos o processo de exportação.','M3 15h14l4-4V8H7L3 12zM6 18h.01M15 18h.01']];
+const Ic=({d,s=24})=>html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d=${d}/></svg>`;
+const Flag=({z})=>z?html`<svg width="44" height="30" viewBox="0 0 44 30" role="img" aria-label="África do Sul"><rect width="44" height="30" fill="#fff"/><rect width="44" height="10" fill="#de3831"/><rect y="20" width="44" height="10" fill="#002395"/><path d="M0 0l18 15L0 30z" fill="#000"/><path d="M0 4l14 11L0 26z" fill="#007a4d"/><path d="M0 0l22 15L0 30M22 15h22" stroke="#ffb612" strokeWidth="0" fill="none"/><path d="M18 15h26" stroke="#007a4d" strokeWidth="8"/><path d="M0 5l15 10L0 25" stroke="#ffb612" strokeWidth="2" fill="none"/></svg>`:html`<svg width="44" height="30" viewBox="0 0 44 30" role="img" aria-label="Angola"><rect width="44" height="15" fill="#cc092f"/><rect y="15" width="44" height="15" fill="#000"/><circle cx="22" cy="15" r="6" fill="none" stroke="#ffcb00" strokeWidth="2"/><path d="M19 12l6 6" stroke="#ffcb00" strokeWidth="2"/></svg>`;
+const Logo=()=>html`<a href="#inicio" className="flex items-center gap-2" aria-label="MAK Auto Parts"><span className="gold disp w-9 h-9 grid place-items-center text-2xl font-extrabold" style=${{clipPath:'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)'}}>M</span><span className="disp text-2xl font-bold tracking-wider">MAK <span className="goldtx">AUTO PARTS</span></span></a>`;
+
+function useReveal(){useEffect(()=>{const o=new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&x.target.classList.add('in')),{threshold:.12});document.querySelectorAll('.rev').forEach(el=>o.observe(el));return()=>o.disconnect()},[])}
+
+function Header({open}){
+ const [m,setM]=useState(false);
+ const L=[['inicio','Início'],['pecas','Peças'],['como','Como funciona'],['sobre','Sobre nós'],['contato','Contato']];
+ return html`<header className="fixed top-0 inset-x-0 z-40 backdrop-blur bg-black/80 border-b" style=${{borderColor:'var(--line)',paddingTop:'env(safe-area-inset-top,0px)'}}>
+  <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+   <${Logo}/>
+   <nav className="hidden md:flex items-center gap-7 text-sm">${L.map(([h,t])=>html`<a key=${h} href=${'#'+h} className="text-[color:var(--mut)] hover:text-[color:var(--gold)] transition">${t}</a>`)}
+    <button onClick=${()=>open()} className="btn gold text-sm">SOLICITAR ORÇAMENTO</button></nav>
+   <button className="md:hidden p-2 text-[color:var(--gold)]" aria-label="Abrir menu" aria-expanded=${m} onClick=${()=>setM(!m)}><${Ic} d=${m?'M5 5l14 14M19 5L5 19':'M4 7h16M4 12h16M4 17h16'} s=${28}/></button>
+  </div>
+  ${m&&html`<div className="md:hidden px-5 pb-5 flex flex-col gap-3 bg-black">${L.map(([h,t])=>html`<a key=${h} href=${'#'+h} onClick=${()=>setM(false)} className="py-2 border-b" style=${{borderColor:'var(--line)'}}>${t}</a>`)}
+   <button onClick=${()=>{setM(false);open()}} className="btn gold">SOLICITAR ORÇAMENTO</button></div>`}
+ </header>`}
+
+function Hero({open}){return html`<section id="inicio" className="hero relative min-h-screen flex items-center pt-24 overflow-hidden">
+ <svg className="absolute bottom-0 left-0 w-full h-1/2 opacity-90" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <rect y="240" width="1200" height="60" fill="#0b0a07"/>
+  ${[...Array(18)].map((_,i)=>html`<rect key=${i} className="ship" x=${20+i*66} y=${i%3==0?150:i%3==1?190:170} width="56" height=${i%3==0?90:i%3==1?50:70} />`)}
+  ${[...Array(18)].map((_,i)=>html`<rect key=${'l'+i} x=${20+i*66} y=${i%3==0?150:i%3==1?190:170} width="56" height="3" fill="#d4af37" opacity=".7"/>`)}
+  <g stroke="#d4af37" strokeWidth="3" fill="none" opacity=".8"><path d="M900 240V60h120M1020 60v40"/><path d="M900 60L860 40"/></g>
+ </svg>
+ <div className="max-w-6xl mx-auto px-5 relative z-10 py-16">
+  <div className="flex items-center gap-4 mb-8"><${Flag} z=${true}/><svg width="90" height="20" viewBox="0 0 90 20" className="drift" aria-hidden="true"><path d="M0 10h80M70 3l12 7-12 7" stroke="#d4af37" strokeWidth="2.5" fill="none"/></svg><${Flag}/></div>
+  <h1 className="text-5xl sm:text-7xl lg:text-8xl font-extrabold max-w-4xl">A peça que você procura, <span className="goldtx">nós levamos até você.</span></h1>
+  <p className="mt-7 max-w-xl text-lg text-[color:var(--mut)] leading-relaxed">Encomendamos sua peça na África do Sul e exportamos diretamente para Angola. Você solicita, nós encontramos e cuidamos do processo.</p>
+  <div className="mt-9 flex flex-wrap gap-4"><a href="#pecas" className="btn gold">ENCONTRAR UMA PEÇA</a><button onClick=${()=>open()} className="btn ghost">SOLICITAR ORÇAMENTO</button></div>
+ </div></section>`}
+
+function Catalog({open}){
+ const [q,setQ]=useState('');const [cat,setCat]=useState('Todas');
+ const list=useMemo(()=>PARTS.filter(p=>(cat==='Todas'||p.c===cat)&&(p.n+' '+p.d).toLowerCase().includes(q.toLowerCase())),[q,cat]);
+ return html`<section id="pecas" className="py-24 px-5"><div className="max-w-6xl mx-auto rev">
+  <h2 className="text-5xl sm:text-6xl font-bold">Catálogo de peças</h2>
+  <p className="mt-3 text-[color:var(--mut)] max-w-xl">Escolha uma categoria ou pesquise pelo nome. Todas as peças são por encomenda: peça um orçamento e confirmamos as condições.</p>
+  <div className="mt-8 flex flex-col md:flex-row gap-4 md:items-center">
+   <input className="inp md:max-w-sm" type="search" placeholder="Pesquisar peça pelo nome" aria-label="Pesquisar peça" value=${q} onChange=${e=>setQ(e.target.value)}/>
+   <div className="flex flex-wrap gap-2">${CATS.map(c=>html`<button key=${c} onClick=${()=>setCat(c)} aria-pressed=${cat===c} className=${'px-4 py-2 text-sm border transition '+(cat===c?'gold border-transparent font-bold':'text-[color:var(--mut)] hover:border-[color:var(--gold)]')} style=${{borderColor:'var(--line)'}}>${c}</button>`)}</div>
+  </div>
+  <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+   ${list.map(p=>html`<article key=${p.n} className="card p-5 flex flex-col cursor-pointer" onClick=${()=>open(p.n)}>
+    <div className="h-32 grid place-items-center mb-4" style=${{background:'radial-gradient(circle at 50% 40%,rgba(212,175,55,.18),#0a0908 70%)',color:'var(--gold)'}}><${Ic} d=${p.i} s=${56}/></div>
+    <span className="text-xs text-[color:var(--gold2)]">${p.c}</span>
+    <h3 className="text-2xl font-bold mt-1">${p.n}</h3>
+    <p className="text-sm text-[color:var(--mut)] mt-2 flex-1 leading-relaxed">${p.d}</p>
+    <button className="btn ghost text-sm mt-5" onClick=${e=>{e.stopPropagation();open(p.n)}}>SOLICITAR COTAÇÃO</button></article>`)}
+  </div>
+  ${list.length===0&&html`<div className="mt-10 card p-8 text-center"><p>Nenhuma peça encontrada para “${q}”.</p><button className="btn gold mt-4" onClick=${()=>open(q)}>Pedir esta peça por encomenda</button></div>`}
+ </div></section>`}
+
+function How(){return html`<section id="como" className="py-24 px-5" style=${{background:'var(--panel)'}}><div className="max-w-6xl mx-auto rev">
+ <h2 className="text-5xl sm:text-6xl font-bold">Como funciona</h2>
+ <div className="mt-12 grid md:grid-cols-4 gap-6">${STEPS.map(([t,d,i],k)=>html`<div key=${t} className="relative border-t-2 pt-5" style=${{borderColor:'var(--gold)'}}>
+  <span className="disp text-6xl goldtx font-extrabold">0${k+1}</span><div className="mt-3 text-[color:var(--gold)]"><${Ic} d=${i} s=${34}/></div>
+  <h3 className="text-2xl font-bold mt-3">${t}</h3><p className="text-[color:var(--mut)] mt-2 text-sm leading-relaxed">${d}</p></div>`)}</div></div></section>`}
+
+function About(){const D=['Busca de peças na África do Sul','Atendimento personalizado','Encomenda de peças específicas','Comunicação direta pelo WhatsApp','Exportação direcionada ao mercado angolano'];
+ return html`<section id="sobre" className="py-24 px-5"><div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 rev">
+  <div><h2 className="text-5xl sm:text-6xl font-bold">Sobre a MAK</h2><p className="mt-5 text-[color:var(--mut)] leading-relaxed max-w-md">A MAK Auto Parts compra peças automotivas na África do Sul e as exporta para Angola. Cada pedido é tratado de forma direta e pessoal, do primeiro contato à confirmação do orçamento.</p></div>
+  <ul className="grid gap-3">${D.map(x=>html`<li key=${x} className="card p-4 flex items-center gap-4"><span className="text-[color:var(--gold)]"><${Ic} d="M5 12l5 5 9-10"/></span>${x}</li>`)}</ul></div></section>`}
+
+function Contact(){return html`<section id="contato" className="py-24 px-5" style=${{background:'var(--panel)'}}><div className="max-w-6xl mx-auto rev">
+ <h2 className="text-5xl sm:text-6xl font-bold">Fale com a MAK</h2>
+ <div className="mt-10 grid md:grid-cols-3 gap-5">
+  ${[['WhatsApp Angola','+244 923 422 858',wa(WA.AO,'Olá, MAK Auto Parts! Gostaria de uma informação.')],['WhatsApp África do Sul','+27 65 643 9140',wa(WA.ZA,'Olá, MAK Auto Parts! Gostaria de uma informação.')],['Instagram','@mak.autoparts','https://instagram.com/mak.autoparts']].map(([t,v,h])=>html`<div key=${t} className="card p-6"><h3 className="text-2xl font-bold">${t}</h3><p className="mt-2 text-[color:var(--mut)]">${v}</p><a href=${h} target="_blank" rel="noopener" className="btn gold mt-5 text-sm">${t==='Instagram'?'ABRIR INSTAGRAM':'CHAMAR NO WHATSAPP'}</a></div>`)}
+ </div></div></section>`}
+
+function Footer(){return html`<footer className="px-5 py-14 border-t" style=${{borderColor:'var(--line)'}}><div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+ <div><${Logo}/><p className="text-sm text-[color:var(--mut)] mt-4 max-w-xs">Compra e exportação de peças automotivas da África do Sul para Angola.</p></div>
+ <div className="text-sm grid gap-2 content-start">${[['pecas','Peças'],['como','Como funciona'],['sobre','Sobre nós'],['contato','Contato']].map(([h,t])=>html`<a key=${h} href=${'#'+h} className="text-[color:var(--mut)] hover:text-[color:var(--gold)]">${t}</a>`)}</div>
+ <div className="text-sm text-[color:var(--mut)] grid gap-2 content-start"><span>Angola: +244 923 422 858</span><span>África do Sul: +27 65 643 9140</span><a href="https://instagram.com/mak.autoparts" target="_blank" rel="noopener">@mak.autoparts</a></div>
+ <p className="md:col-span-3 disp text-2xl sm:text-3xl goldtx font-bold pt-8 border-t" style=${{borderColor:'var(--line)'}}>MAK AUTO PARTS — CONECTANDO ANGOLA ÀS MELHORES OPORTUNIDADES EM PEÇAS AUTOMOTIVAS.</p></div></footer>`}
+
+function Quote({part,close}){
+ const [f,setF]=useState({nome:'',zap:'',marca:'',modelo:'',ano:'',peca:part||'',ref:'',qtd:'1',info:'',pais:'AO'});
+ const [file,setFile]=useState(null);const [er,setEr]=useState({});const [step,setStep]=useState(1);
+ const set=k=>e=>setF({...f,[k]:e.target.value});
+ const req={nome:'o nome',zap:'o WhatsApp',marca:'a marca',modelo:'o modelo',ano:'o ano',peca:'a peça',qtd:'a quantidade'};
+ const go=()=>{const x={};Object.keys(req).forEach(k=>{if(!String(f[k]).trim())x[k]='Informe '+req[k]+'.'});
+  if(f.zap&&f.zap.replace(/\D/g,'').length<8)x.zap='Número inválido.';if(f.ano&&!/^(19|20)\d{2}$/.test(f.ano))x.ano='Use 4 dígitos, ex.: 2015.';
+  setEr(x);if(!Object.keys(x).length)setStep(2)};
+ const msg=`*Solicitação de orçamento — MAK Auto Parts*\n\nNome: ${f.nome}\nWhatsApp: ${f.zap}\nVeículo: ${f.marca} ${f.modelo} (${f.ano})\nPeça: ${f.peca}\nReferência: ${f.ref||'não informada'}\nQuantidade: ${f.qtd}\nInformações: ${f.info||'—'}${file?`\nFoto: ${file.name} (envio a seguir nesta conversa)`:''}`;
+ useEffect(()=>{const k=e=>e.key==='Escape'&&close();document.addEventListener('keydown',k);document.body.style.overflow='hidden';return()=>{document.removeEventListener('keydown',k);document.body.style.overflow=''}},[]);
+ const Fd=({k,l,t='text',ph})=>html`<label className="block text-sm"><span className="text-[color:var(--mut)]">${l}</span><input className="inp mt-1" type=${t} placeholder=${ph} value=${f[k]} onChange=${set(k)} aria-invalid=${!!er[k]}/>${er[k]&&html`<div className="err">${er[k]}</div>`}</label>`;
+ return html`<div className="fixed inset-0 z-50 bg-black/80 grid place-items-center p-3" onClick=${close} role="dialog" aria-modal="true" aria-label="Solicitar orçamento">
+  <div className="card w-full max-w-xl max-h-[92vh] overflow-auto p-6" style=${{transform:'none'}} onClick=${e=>e.stopPropagation()}>
+   <div className="flex justify-between items-start"><h2 className="text-4xl font-bold">${step===1?'Solicitar orçamento':'Confira o pedido'}</h2><button onClick=${close} aria-label="Fechar" className="text-[color:var(--gold)]"><${Ic} d="M5 5l14 14M19 5L5 19"/></button></div>
+   ${step===1?html`<div className="grid gap-4 mt-5 sm:grid-cols-2">
+    <div className="sm:col-span-2"><${Fd} k="nome" l="Nome completo"/></div>
+    <div className="sm:col-span-2"><${Fd} k="zap" l="Número de WhatsApp" t="tel" ph="+244 ..."/></div>
+    <${Fd} k="marca" l="Marca do veículo" ph="Toyota"/><${Fd} k="modelo" l="Modelo do veículo" ph="Hilux"/>
+    <${Fd} k="ano" l="Ano do veículo" ph="2015"/><${Fd} k="qtd" l="Quantidade" t="number"/>
+    <div className="sm:col-span-2"><${Fd} k="peca" l="Nome da peça desejada"/></div>
+    <div className="sm:col-span-2"><${Fd} k="ref" l="Código ou referência (opcional)"/></div>
+    <label className="sm:col-span-2 text-sm"><span className="text-[color:var(--mut)]">Informações adicionais</span><textarea className="inp mt-1" rows="3" value=${f.info} onChange=${set('info')}></textarea></label>
+    <label className="sm:col-span-2 text-sm"><span className="text-[color:var(--mut)]">Fotografia da peça (opcional)</span><input className="inp mt-1" type="file" accept="image/*" onChange=${e=>setFile(e.target.files[0]||null)}/></label>
+    <button className="btn gold sm:col-span-2" onClick=${go}>VER RESUMO DO PEDIDO</button></div>`
+   :html`<div className="mt-5"><pre className="whitespace-pre-wrap text-sm bg-black p-4 border" style=${{borderColor:'var(--line)',fontFamily:'inherit'}}>${msg.replace(/\*/g,'')}</pre>
+    <label className="block text-sm mt-4"><span className="text-[color:var(--mut)]">Enviar para</span><select className="inp mt-1" value=${f.pais} onChange=${set('pais')}><option value="AO">WhatsApp Angola</option><option value="ZA">WhatsApp África do Sul</option></select></label>
+    ${file&&html`<p className="text-xs text-[color:var(--mut)] mt-3">A foto não segue na mensagem automática: anexe “${file.name}” na conversa do WhatsApp.</p>`}
+    <div className="flex gap-3 mt-5 flex-wrap"><button className="btn ghost" onClick=${()=>setStep(1)}>EDITAR</button><a className="btn gold flex-1" target="_blank" rel="noopener" href=${wa(WA[f.pais],msg)}>ENVIAR SOLICITAÇÃO PELO WHATSAPP</a></div></div>`}
+  </div></div>`}
+
+function App(){
+ const [q,setQ]=useState(null);useReveal();
+ const open=p=>setQ({p:typeof p==='string'?p:''});
+ return html`<${React.Fragment}><${Header} open=${open}/><main><${Hero} open=${open}/><${Catalog} open=${open}/><${How}/><${About}/><${Contact}/></main><${Footer}/>
+  <a href=${wa(WA.AO,'Olá, MAK Auto Parts! Preciso de uma peça.')} target="_blank" rel="noopener" aria-label="WhatsApp" className="fixed right-4 z-30 w-14 h-14 rounded-full grid place-items-center shadow-xl" style=${{background:'#25d366',color:'#fff',bottom:'calc(1rem + env(safe-area-inset-bottom,0px))'}}><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.1-1.3A10 10 0 1012 2zm5.2 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 .9-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.8-.1 1.3z"/></svg></a>
+  ${q&&html`<${Quote} part=${q.p} close=${()=>setQ(null)}/>`}<//>`}
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
